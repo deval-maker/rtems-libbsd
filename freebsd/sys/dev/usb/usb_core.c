@@ -63,6 +63,13 @@ const struct usb_string_lang usb_string_lang_en = {
 	{ 0x09, 0x04 } /* American English */
 };
 
+#ifdef __rtems__
+const struct usb_string_lang usb_string_lang_en = {
+	sizeof(usb_string_lang_en), UDESC_STRING,
+	{ 0x09, 0x04 } /* American English */
+};
+#endif
+
 MALLOC_DEFINE(M_USB, "USB", "USB");
 MALLOC_DEFINE(M_USBDEV, "USBdev", "USB device");
 
