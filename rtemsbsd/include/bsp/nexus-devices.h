@@ -134,6 +134,27 @@ SYSINIT_REFERENCE(usb_quirk_init);
 SYSINIT_DRIVER_REFERENCE(uhub, usbus);
 SYSINIT_DRIVER_REFERENCE(umass, uhub);
 
+
+#elif defined(LIBBSP_ARM_RASPBERRYPI_BSP_H)
+
+#include <bsp/irq.h>
+
+static const rtems_bsd_device_resource bcm283x_dwcotg_res[] = {
+	{
+		.type = RTEMS_BSD_RES_MEMORY,
+		.start_request = 0,
+		.start_actual = 0x20980000
+	}, {
+		.type = RTEMS_BSD_RES_IRQ,
+		.start_request = 0,
+		.start_actual = 17
+	}
+};
+
+RTEMS_BSD_DEFINE_NEXUS_DEVICE(bcm283x_dwcotg, 0, RTEMS_ARRAY_SIZE(bcm283x_dwcotg_res),
+    &bcm283x_dwcotg_res[0]);
+SYSINIT_DRIVER_REFERENCE(bcm283x_dwcotg, nexus);
+
 #elif defined(LIBBSP_I386_PC386_BSP_H)
 
 RTEMS_BSD_DEFINE_NEXUS_DEVICE(legacy, 0, 0, NULL);
