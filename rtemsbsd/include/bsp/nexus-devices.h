@@ -143,17 +143,30 @@ static const rtems_bsd_device_resource bcm283x_dwcotg_res[] = {
 	{
 		.type = RTEMS_BSD_RES_MEMORY,
 		.start_request = 0,
-		.start_actual = 0x20980000
+		.start_actual = BCM2835_USB_BASE
 	}, {
 		.type = RTEMS_BSD_RES_IRQ,
 		.start_request = 0,
-		.start_actual = 17
+		.start_actual = BCM2835_IRQ_ID_USB
 	}
 };
 
 RTEMS_BSD_DEFINE_NEXUS_DEVICE(bcm283x_dwcotg, 0, RTEMS_ARRAY_SIZE(bcm283x_dwcotg_res),
     &bcm283x_dwcotg_res[0]);
 SYSINIT_DRIVER_REFERENCE(bcm283x_dwcotg, nexus);
+
+SYSINIT_DRIVER_REFERENCE(dwcotg, usbus);
+SYSINIT_DRIVER_REFERENCE(uhub, usbus);
+SYSINIT_DRIVER_REFERENCE(umass, uhub);
+
+SYSINIT_DRIVER_REFERENCE(smsc, usbus);
+SYSINIT_DRIVER_REFERENCE(miibus, smsc);
+SYSINIT_DRIVER_REFERENCE(ukphy, miibus);
+SYSINIT_DRIVER_REFERENCE(uether, smsc);
+
+SYSINIT_DRIVER_REFERENCE(usb, smsc);
+SYSINIT_DRIVER_REFERENCE(ether, smsc);
+
 
 #elif defined(LIBBSP_I386_PC386_BSP_H)
 

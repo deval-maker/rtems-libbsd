@@ -224,5 +224,9 @@ driver_t dwc_otg_driver = {
 
 static devclass_t dwc_otg_devclass;
 
+#ifndef __rtems__
 DRIVER_MODULE(dwcotg, simplebus, dwc_otg_driver, dwc_otg_devclass, 0, 0);
+#else /* __rtems__ */
+DRIVER_MODULE(dwcotg, nexus, dwc_otg_driver, dwc_otg_devclass, 0, 0);
+#endif /* __rtems__ */
 MODULE_DEPEND(dwcotg, usb, 1, 1, 1);

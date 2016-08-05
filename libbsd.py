@@ -611,13 +611,15 @@ def dev_usb_net(mm):
         [
             'sys/dev/mii/mii.h',
             'sys/dev/mii/miivar.h',
-            'sys/dev/usb/net/if_cdcereg.h',
+            # 'sys/dev/usb/net/if_cdcereg.h',
+            'sys/dev/usb/net/if_smscreg.h',
             'sys/dev/usb/net/usb_ethernet.h',
         ]
     )
     mod.addKernelSpaceSourceFiles(
         [
-            'sys/dev/usb/net/if_cdce.c',
+            # 'sys/dev/usb/net/if_cdce.c',
+            'sys/dev/usb/net/if_smsc.c',
             'sys/dev/usb/net/usb_ethernet.c',
         ],
 	mm.generator['source']()
@@ -2639,7 +2641,7 @@ def sources(mm):
     #mm.addModule(dev_usb_input(mm))
     #mm.addModule(dev_usb_mouse(mm))
     #mm.addModule(dev_usb_serial(mm))
-    #mm.addModule(dev_usb_net(mm))
+    mm.addModule(dev_usb_net(mm))
     #mm.addModule(dev_usb_wlan(mm))
 
     mm.addModule(cam(mm))

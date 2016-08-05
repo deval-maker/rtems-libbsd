@@ -764,6 +764,8 @@ def build(bld):
               'freebsd/sys/dev/usb/controller/ehci.c',
               'freebsd/sys/dev/usb/controller/ohci.c',
               'freebsd/sys/dev/usb/controller/usb_controller.c',
+              'freebsd/sys/dev/usb/net/if_smsc.c',
+              'freebsd/sys/dev/usb/net/usb_ethernet.c',
               'freebsd/sys/dev/usb/quirk/usb_quirk.c',
               'freebsd/sys/dev/usb/storage/umass.c',
               'freebsd/sys/dev/usb/usb_busdma.c',
