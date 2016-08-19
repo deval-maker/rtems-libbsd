@@ -582,7 +582,11 @@ uether_rxmbuf(struct usb_ether *ue, struct mbuf *m,
 	UE_LOCK_ASSERT(ue, MA_OWNED);
 
 	/* finalize mbuf */
+#ifndef __rtems__
 	if_inc_counter(ifp, IFCOUNTER_IPACKETS, 1);
+#else /* __rtems__ */
+	ifp->if_ipackets++;
+#endif /* __rtems__ */
 	m->m_pkthdr.rcvif = ifp;
 	m->m_pkthdr.len = m->m_len = len;
 
@@ -605,14 +609,22 @@ uether_rxbuf(struct usb_ether *ue, struct usb_page_cache *pc,
 
 	m = uether_newbuf();
 	if (m == NULL) {
+#ifndef __rtems__
 		if_inc_counter(ifp, IFCOUNTER_IQDROPS, 1);
+#else /* __rtems__ */
+		ifp->if_iqdrops++;
+#endif /* __rtems__ */
 		return (ENOMEM);
 	}
 
 	usbd_copy_out(pc, offset, mtod(m, uint8_t *), len);
 
 	/* finalize mbuf */
+#ifndef __rtems__
 	if_inc_counter(ifp, IFCOUNTER_IPACKETS, 1);
+#else /* __rtems__ */
+	ifp->if_ipackets++;
+#endif /* __rtems__ */
 	m->m_pkthdr.rcvif = ifp;
 	m->m_pkthdr.len = m->m_len = len;
 

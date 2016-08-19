@@ -71,10 +71,12 @@
  *   RTEMS_BSD_DRIVER_PCI_IGB
  *   RTEMS_BSD_DRIVER_PCI_EM
  *   RTEMS_BSD_DRIVER_PCI_RE
+ *   RTEMS_BSD_DRIVER_SMSC
  *
  *  MMI PHY:
  *   RTEMS_BSD_DRIVER_E1000PHY
  *   RTEMS_BSD_DRIVER_REPHY
+ *   RTEMS_BSD_DRIVER_UKPHY
  *   RTEMS_BSD_DRIVER_MIPHY
  */
 
@@ -354,6 +356,14 @@ extern "C" {
     SYSINIT_DRIVER_REFERENCE(re, pci);
 #endif /* RTEMS_BSD_DRIVER_PCI_RE */
 
+/*
+ * SMSC USB-Ethernet Driver
+ */
+#if !defined(RTEMS_BSD_DRIVER_SMSC)
+  #define RTEMS_BSD_DRIVER_SMSC                 \
+    SYSINIT_DRIVER_REFERENCE(miibus, smsc);
+#endif /* RTEMS_BSD_DRIVER_SMSC */
+
 /**
  ** MMI Physical Layer Support.
  **/
@@ -373,6 +383,14 @@ extern "C" {
   #define RTEMS_BSD_DRIVER_REPHY                  \
     SYSINIT_DRIVER_REFERENCE(rgephy, miibus);
 #endif /* RTEMS_BSD_DRIVER_REPHY */
+
+/*
+ * Synopsis(uk) PHY
+ */
+#if !defined(RTEMS_BSD_DRIVER_UKPHY)
+  #define RTEMS_BSD_DRIVER_UKPHY                  \
+    SYSINIT_DRIVER_REFERENCE(ukphy, miibus);
+#endif /* RTEMS_BSD_DRIVER_UKPHY */
 
 /*
  * MI PHY.

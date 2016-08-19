@@ -996,7 +996,9 @@ smsc_bulk_read_callback(struct usb_xfer *xfer, usb_error_t error)
 			/* The frame header is always aligned on a 4 byte boundary */
 			off = ((off + 0x3) & ~0x3);
 
+#ifndef __rtems__
 			usbd_copy_out(pc, off, &rxhdr, sizeof(rxhdr));
+#endif /* __rtems__ */
 			off += (sizeof(rxhdr) + ETHER_ALIGN);
 			rxhdr = le32toh(rxhdr);
 		
@@ -1008,9 +1010,17 @@ smsc_bulk_read_callback(struct usb_xfer *xfer, usb_error_t error)
 			
 			if (rxhdr & SMSC_RX_STAT_ERROR) {
 				smsc_dbg_printf(sc, "rx error (hdr 0x%08x)\n", rxhdr);
+#ifndef __rtems__
 				if_inc_counter(ifp, IFCOUNTER_IERRORS, 1);
+#else /* __rtems__ */
+				ifp->if_ierrors++;
+#endif /* __rtems__ */
 				if (rxhdr & SMSC_RX_STAT_COLLISION)
+#ifndef __rtems__
 					if_inc_counter(ifp, IFCOUNTER_COLLISIONS, 1);
+#else /* __rtems__ */
+					sc->ifp->if_collisions += 1;
+#endif /* __rtems__ */
 			} else {
 
 				/* Check if the ethernet frame is too big or too small */
@@ -1021,12 +1031,18 @@ smsc_bulk_read_callback(struct usb_xfer *xfer, usb_error_t error)
 				m = uether_newbuf();
 				if (m == NULL) {
 					smsc_warn_printf(sc, "failed to create new mbuf\n");
+#ifndef __rtems__
 					if_inc_counter(ifp, IFCOUNTER_IQDROPS, 1);
+#else /* __rtems__ */
+					ifp->if_iqdrops++;
+#endif /* __rtems__ */
 					goto tr_setup;
 				}
+#ifndef __rtems__
 				
 				usbd_copy_out(pc, off, mtod(m, uint8_t *), pktlen);
 
+#endif /* __rtems__ */
 				/* Check if RX TCP/UDP checksumming is being offloaded */
 				if ((ifp->if_capenable & IFCAP_RXCSUM) != 0) {
 
@@ -1061,9 +1077,11 @@ smsc_bulk_read_callback(struct usb_xfer *xfer, usb_error_t error)
 							/* Copy the TCP/UDP checksum from the last 2 bytes
 							 * of the transfer and put in the csum_data field.
 							 */
+#ifndef __rtems__
 							usbd_copy_out(pc, (off + pktlen),
 							              &m->m_pkthdr.csum_data, 2);
 
+#endif /* __rtems__ */
 							/* The data is copied in network order, but the
 							 * csum algorithm in the kernel expects it to be
 							 * in host network order.
@@ -1165,19 +1183,29 @@ tr_setup:
 			txhdr = SMSC_TX_CTRL_0_BUF_SIZE(m->m_pkthdr.len) | 
 					SMSC_TX_CTRL_0_FIRST_SEG | SMSC_TX_CTRL_0_LAST_SEG;
 			txhdr = htole32(txhdr);
+#ifndef __rtems__
 			usbd_copy_in(pc, 0, &txhdr, sizeof(txhdr));
 			
+#endif /* __rtems__ */
 			txhdr = SMSC_TX_CTRL_1_PKT_LENGTH(m->m_pkthdr.len);
 			txhdr = htole32(txhdr);
+#ifndef __rtems__
 			usbd_copy_in(pc, 4, &txhdr, sizeof(txhdr));
 			
+#endif /* __rtems__ */
 			frm_len += 8;
 
 			/* Next copy in the actual packet */
+#ifndef __rtems__
 			usbd_m_copy_in(pc, frm_len, m, 0, m->m_pkthdr.len);
+#endif /* __rtems__ */
 			frm_len += m->m_pkthdr.len;
 
+#ifndef __rtems__
 			if_inc_counter(ifp, IFCOUNTER_OPACKETS, 1);
+#else /* __rtems__ */
+			sc->ifp->if_opackets++;
+#endif /* __rtems__ */
 
 			/* If there's a BPF listener, bounce a copy of this frame to him */
 			BPF_MTAP(ifp, m);
@@ -1195,7 +1223,11 @@ tr_setup:
 		return;
 
 	default:
+#ifndef __rtems__
 		if_inc_counter(ifp, IFCOUNTER_OERRORS, 1);
+#else /* __rtems__ */
+		sc->ifp->if_oerrors++;
+#endif /* __rtems__ */
 		ifp->if_drv_flags &= ~IFF_DRV_OACTIVE;
 		
 		if (error != USB_ERR_CANCELLED) {
