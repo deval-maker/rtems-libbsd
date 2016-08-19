@@ -30,6 +30,8 @@
 	#define NEED_USB_OHCI
 #elif defined(__GEN83xx_BSP_h) || defined(LIBBSP_POWERPC_QORIQ_BSP_H)
 	#define NEED_USB_EHCI
+#elif defined(LIBBSP_ARM_RASPBERRYPI_BSP_H)
+	#define NEED_USB_OTG
 #endif
 
 SYSINIT_NEED_USB_CORE;
