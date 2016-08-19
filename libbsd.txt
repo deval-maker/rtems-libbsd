@@ -740,6 +740,7 @@ detail and debug level information from the command.
 . *, stable/9, 2015-04-08, 99a648a912e81e29d9c4c159cbbe263462f2d719
 . sys/arm/broadcom/bcm2835/bcm283x_dwc_fdt.c, trunk, 2016-05-26, a7019c8505c0592f2e80ac63be139075d8977c4e
 . sys/dev/usb/controller/dwc_otg_fdt.*, trunk, 2016-05-26, a7019c8505c0592f2e80ac63be139075d8977c4e
+. sys/dev/usb/net/*, trunk, 2016-05-26, a7019c8505c0592f2e80ac63be139075d8977c4e
 
 == How to import code from FreeBSD
 
