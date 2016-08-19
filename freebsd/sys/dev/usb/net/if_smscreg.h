@@ -256,6 +256,7 @@ enum {
 };
 
 struct smsc_softc {
+	struct ifnet		*ifp;
 	struct usb_ether  sc_ue;
 	struct mtx        sc_mtx;
 	struct usb_xfer  *sc_xfer[SMSC_N_TRANSFER];
