@@ -39,9 +39,11 @@ __FBSDID("$FreeBSD$");
 #include <sys/mutex.h>
 #include <sys/rman.h>
 
+#ifndef __rtems__
 #include <dev/ofw/openfirm.h>
 #include <dev/ofw/ofw_bus.h>
 #include <dev/ofw/ofw_bus_subr.h>
+#endif
 
 #include <dev/usb/usb.h>
 #include <dev/usb/usbdi.h>
@@ -64,11 +66,13 @@ static int
 dwc_otg_probe(device_t dev)
 {
 
+	#ifndef __rtems__
 	if (!ofw_bus_status_okay(dev))
 		return (ENXIO);
 
 	if (!ofw_bus_is_compatible(dev, "synopsys,designware-hs-otg2"))
 		return (ENXIO);
+	#endif
 
 	device_set_desc(dev, "DWC OTG 2.0 integrated USB controller");
 
@@ -89,6 +93,7 @@ dwc_otg_attach(device_t dev)
 	sc->sc_otg.sc_bus.devices_max = DWC_OTG_MAX_DEVICES;
 	sc->sc_otg.sc_bus.dma_bits = 32;
 
+	#ifndef __rtems__
 	/* get USB mode, if any */
 	if (OF_getprop(ofw_bus_get_node(dev), "dr_mode",
 	    &usb_mode, sizeof(usb_mode)) > 0) {
@@ -105,6 +110,7 @@ dwc_otg_attach(device_t dev)
 			    usb_mode);
 		}
 	}
+	#endif
 
 	/* get all DMA memory */
 	if (usb_bus_mem_alloc_all(&sc->sc_otg.sc_bus,
@@ -218,5 +224,9 @@ driver_t dwc_otg_driver = {
 
 static devclass_t dwc_otg_devclass;
 
+#ifndef __rtems__
 DRIVER_MODULE(dwcotg, simplebus, dwc_otg_driver, dwc_otg_devclass, 0, 0);
+#else /* __rtems__ */
+DRIVER_MODULE(dwcotg, nexus, dwc_otg_driver, dwc_otg_devclass, 0, 0);
+#endif /* __rtems__ */
 MODULE_DEPEND(dwcotg, usb, 1, 1, 1);
