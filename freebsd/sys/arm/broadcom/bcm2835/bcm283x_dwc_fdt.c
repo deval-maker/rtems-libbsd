@@ -37,7 +37,9 @@ __FBSDID("$FreeBSD$");
 #include <sys/condvar.h>
 #include <sys/module.h>
 
+#ifndef __rtems__
 #include <dev/ofw/ofw_bus_subr.h>
+#endif
 
 #include <dev/usb/usb.h>
 #include <dev/usb/usbdi.h>
@@ -51,7 +53,12 @@ __FBSDID("$FreeBSD$");
 #include <dev/usb/controller/dwc_otg.h>
 #include <dev/usb/controller/dwc_otg_fdt.h>
 
+#ifndef __rtems__
 #include <arm/broadcom/bcm2835/bcm2835_mbox_prop.h>
+#else /* __rtems__ */
+#include <bsp/mailbox.h>
+#include <bsp/vc.h>
+#endif /* __rtems__ */
 
 static device_probe_t bcm283x_dwc_otg_probe;
 static device_attach_t bcm283x_dwc_otg_attach;
@@ -60,11 +67,13 @@ static int
 bcm283x_dwc_otg_probe(device_t dev)
 {
 
+#ifndef __rtems__
 	if (!ofw_bus_status_okay(dev))
 		return (ENXIO);
 
 	if (!ofw_bus_is_compatible(dev, "broadcom,bcm2835-usb"))
 		return (ENXIO);
+#endif /* __rtems__ */
 
 	device_set_desc(dev, "DWC OTG 2.0 integrated USB controller (bcm283x)");
 
@@ -76,9 +85,19 @@ bcm283x_dwc_otg_attach(device_t dev)
 {
 	int err;
 
+#ifndef __rtems__
 	err = bcm2835_mbox_set_power_state(BCM2835_MBOX_POWER_ID_USB_HCD, TRUE);
 	if (err)
 		device_printf(dev, "failed to set power state, err=%d\n", err);
+#else /* __rtems__ */
+	bcm2835_set_power_state_entries power_state_usb;
+	power_state_usb.dev_id = bcm2835_mailbox_power_udid_usb_hcd;
+	power_state_usb.state = BCM2835_MAILBOX_SET_POWER_STATE_REQ_ON;
+	err = bcm2835_mailbox_set_power_state(&power_state_usb);
+	if (err) 
+		device_printf(dev, "failed to set power state, err=%d\n", err);
+
+#endif /* __rtems__ */
 
 	return (dwc_otg_attach(dev));
 }
@@ -95,6 +114,11 @@ static devclass_t bcm283x_dwc_otg_devclass;
 
 DEFINE_CLASS_1(bcm283x_dwcotg, bcm283x_dwc_otg_driver, bcm283x_dwc_otg_methods,
     sizeof(struct dwc_otg_fdt_softc), dwc_otg_driver);
+#ifndef __rtems__
 DRIVER_MODULE(bcm283x_dwcotg, simplebus, bcm283x_dwc_otg_driver,
     bcm283x_dwc_otg_devclass, 0, 0);
+#else /* __rtems__ */
+DRIVER_MODULE(bcm283x_dwcotg, nexus, bcm283x_dwc_otg_driver,
+	bcm283x_dwc_otg_devclass, 0, 0);
+#endif /* __rtems__ */
 MODULE_DEPEND(bcm283x_dwcotg, usb, 1, 1, 1);

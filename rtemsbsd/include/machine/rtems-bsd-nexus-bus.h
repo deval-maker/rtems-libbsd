@@ -46,6 +46,7 @@
  *   RTEMS_BSD_DRIVER_DWCOTG0
  *   RTEMS_BSD_DRIVER_DWCOTG0_BASE_ADDR
  *    RTEMS_BSD_DRIVER_DWCOTG0_IRQ
+ *   RTEMS_BSD_DRIVER_BCM283X_DWCOTG
  *   RTEMS_BSD_DRIVER_DWC_MMC
  *   RTEMS_BSD_DRIVER_MMC
  *   RTEMS_BSD_DRIVER_USB
@@ -153,6 +154,27 @@ extern "C" {
                                   RTEMS_ARRAY_SIZE(dwcotg0_res), \
                                   &dwcotg0_res[0])
 #endif /* RTEMS_BSD_DRIVER_DWCOTG0 */
+
+/*
+ * RaspberryPi OTG USB Controller.
+ */
+#if !defined(RTEMS_BSD_DRIVER_BCM283X_DWCOTG)
+  #define RTEMS_BSD_DRIVER_BCM283X_DWCOTG(_base, _irq)                  \
+    static const rtems_bsd_device_resource bcm283x_dwcotg_res[] = {     \
+      {                                                                 \
+        .type = RTEMS_BSD_RES_MEMORY,                                   \
+        .start_request = 0,                                             \
+        .start_actual = (_base)                                         \
+      }, {                                                              \
+        .type = RTEMS_BSD_RES_IRQ,                                      \
+        .start_request = 0,                                             \
+        .start_actual = (_irq)                                          \
+      }                                                                 \
+    };                                                                  \
+    RTEMS_BSD_DEFINE_NEXUS_DEVICE(bcm283x_dwcotg, 0,                    \
+                                  RTEMS_ARRAY_SIZE(bcm283x_dwcotg_res), \
+                                  &bcm283x_dwcotg_res[0])
+#endif /* RTEMS_BSD_DRIVER_BCM283X_DWCOTG */
 
 /*
  * Designware/Synopsys MMC.
